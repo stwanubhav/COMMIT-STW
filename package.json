@@ -1,0 +1,24 @@
+{
+  "name": "github-auto-commit",
+  "version": "1.0.0",
+  "description": "Analyze a local project with HuggingFace AI and commit files one-by-one to GitHub",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node server.js",
+    "electron": "electron ."
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.1.1",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "glob": "^10.4.5",
+    "ignore": "^5.3.1",
+    "mime-types": "^2.1.35"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7"
+  },
+  "author": "Auto Commit Tool",
+  "license": "MIT"
+}
