@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Auto-Commit</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ── Sidebar ─────────────────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.1.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.01 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.69.82.57C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        <span>AutoCommit</span>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-tab="commit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="9"/>
+            <line x1="12" y1="15" x2="12" y2="21"/><line x1="3" y1="12" x2="9" y2="12"/>
+            <line x1="15" y1="12" x2="21" y2="12"/>
+          </svg>
+          Commit Files
+        </button>
+        <button class="nav-item" data-tab="log">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+          </svg>
+          Activity Log
+        </button>
+        <button class="nav-item" data-tab="files">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+          File List
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusLabel">Idle</span>
+      </div>
+    </aside>
+
+    <!-- ── Main content ────────────────────────────────────────────── -->
+    <main class="main">
+
+      <!-- Commit Tab -->
+      <section class="tab active" id="tab-commit">
+        <div class="section-header">
+          <h1>Push Project to GitHub</h1>
+          <p>Analyse every file with AI and commit them one-by-one</p>
+        </div>
+
+        <div class="form-grid">
+
+          <!-- GitHub Token -->
+          <div class="form-group full">
+            <label for="githubToken">
+              GitHub Personal Access Token
+              <a href="https://github.com/settings/tokens/new" target="_blank" class="help-link">Get token ↗</a>
+            </label>
+            <div class="input-wrap">
+              <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+              <button class="toggle-btn" id="toggleToken" title="Show/hide token">👁</button>
+            </div>
+            <span class="hint">Needs <code>repo</code> scope.</span>
+          </div>
+
+          <!-- HuggingFace Token -->
+          <div class="form-group full">
+            <label for="hfToken">
+              HuggingFace API Token <span class="optional">(optional)</span>
+              <a href="https://huggingface.co/settings/tokens" target="_blank" class="help-link">Get token ↗</a>
+            </label>
+            <div class="input-wrap">
+              <input type="password" id="hfToken" placeholder="hf_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+              <button class="toggle-btn" id="toggleHf" title="Show/hide token">👁</button>
+            </div>
+            <span class="hint">Used for AI-generated commit messages. Falls back to smart heuristics if omitted.</span>
+          </div>
+
+          <!-- Repo Name -->
+          <div class="form-group half">
+            <label for="repoName">Repository Name</label>
+            <input type="text" id="repoName" placeholder="owner/my-repo  or  my-repo" />
+            <span class="hint">Use <code>owner/repo</code> or just <code>repo</code> (your account).</span>
+          </div>
+
+          <!-- Project Folder -->
+          <div class="form-group half">
+            <label for="projectPath">Local Project Folder</label>
+            <div class="input-wrap">
+              <input type="text" id="projectPath" placeholder="Click Browse to select..." readonly />
+              <button class="browse-btn" id="browseBtn">Browse</button>
+            </div>
+          </div>
+
+          <!-- Options Row -->
+          <div class="form-group full options-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="createRepo" checked />
+              <span class="checkbox-custom"></span>
+              Auto-create repo if it doesn't exist
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="privateRepo" />
+              <span class="checkbox-custom"></span>
+              Make repository private
+            </label>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-group full btn-row">
+            <button class="btn-primary" id="startBtn">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              Start Commit Pipeline
+            </button>
+            <button class="btn-danger hidden" id="cancelBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress Panel (hidden until run starts) -->
+        <div class="progress-panel hidden" id="progressPanel">
+          <div class="progress-header">
+            <span id="progressTitle">Initialising...</span>
+            <span class="progress-counter" id="progressCounter">0 / 0</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progressBar"></div>
+          </div>
+          <div class="current-file" id="currentFile"></div>
+        </div>
+
+        <!-- Summary Card (hidden until done) -->
+        <div class="summary-card hidden" id="summaryCard">
+          <div class="summary-icon" id="summaryIcon">✅</div>
+          <div class="summary-stats">
+            <div class="stat green"><span id="committedCount">0</span><small>Committed</small></div>
+            <div class="stat yellow"><span id="skippedCount">0</span><small>Skipped</small></div>
+            <div class="stat red"><span id="failedCount">0</span><small>Failed</small></div>
+          </div>
+          <a id="repoLink" href="#" target="_blank" class="repo-link hidden">View on GitHub ↗</a>
+        </div>
+      </section>
+
+      <!-- Log Tab -->
+      <section class="tab" id="tab-log">
+        <div class="section-header">
+          <h1>Activity Log</h1>
+          <button class="btn-ghost" id="clearLogBtn">Clear</button>
+        </div>
+        <div class="log-container" id="logContainer">
+          <div class="log-empty">No activity yet. Start a commit pipeline to see logs here.</div>
+        </div>
+      </section>
+
+      <!-- Files Tab -->
+      <section class="tab" id="tab-files">
+        <div class="section-header">
+          <h1>File List</h1>
+          <span class="file-counts" id="fileCounts"></span>
+        </div>
+        <div class="file-panels">
+          <div class="file-panel">
+            <h3>✅ Files to Commit</h3>
+            <ul class="file-list" id="includeList">
+              <li class="placeholder">Scan a project to see files here.</li>
+            </ul>
+          </div>
+          <div class="file-panel">
+            <h3>🚫 Skipped / Excluded</h3>
+            <ul class="file-list skipped" id="excludeList">
+              <li class="placeholder">Skipped files will appear here.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ── Folder Browser Modal ──────────────────────────────────────────── -->
+  <div class="modal-overlay hidden" id="folderModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Select Project Folder</h2>
+        <span class="modal-hint">Double-click to open · Single-click to select</span>
+      </div>
+      <div class="modal-path" id="folderPath">C:\</div>
+      <ul class="folder-list" id="folderList">
+        <li class="folder-loading">Loading...</li>
+      </ul>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="folderCancel">Cancel</button>
+        <button class="btn-primary" id="folderConfirm">Select This Folder</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
